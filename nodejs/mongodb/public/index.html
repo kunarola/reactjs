@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>AngularJS Insert Update Delete Using PHP MySQL</title>
+        <!-- Bootstrap -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200' rel='stylesheet' type='text/css'>	
+        <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <!--<link href="css/animate.min.css" rel="stylesheet">-->
+        <!--<link href="css/style.css" rel="stylesheet">-->
+
+        <script src="../node_modules/angular/angular.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular-animate.js"></script>
+        <script src="dirPagination.js"></script>
+        <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+
+        <!-- Script -->
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <!--<script src="js/angular-custom.js"></script>-->
+    </head>
+    <body ng-app="usersModule" ng-controller="UserController">
+        <div class="container">
+            <h2 class="title text-center">Users</h2>
+
+            <div class="row mt80">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 animated fadeInDown">
+                    <div class="alert alert-danger text-center alert-failure-div" role="alert" style="display: none">
+                        <p></p>
+                    </div>
+                    <div class="alert alert-success text-center alert-success-div" role="alert" style="display: none">
+                        <p></p>
+                    </div>
+                    <form name="userForm" novalidate>
+                        <div class="form-group">
+                            <label for="firstname">First Name</label> 
+                            <input type="text" class="form-control" name="firstname" id="firstname" placeholder="First Name" ng-model="formfirstname" required>
+                            <!--<span style="color:red" ng-show="userForm.userForm.$error.required">First Name is required.</span>-->
+                            <span ng-show="userForm.firstname.$dirty && userForm.firstname.$invalid" style="color:red">First Name is required.</span>
+                            <!--<p ng-show="userForm.firstname.$invalid && !userForm.firstname.$pristine" class="help-block"></p>-->
+
+                            <!--<span style="color:red" ng-show="userForm.firstname.$dirty && userForm.firstname.$invalid">First Name is required.</span>-->
+                        </div>
+                        <div class="form-group">
+                            <label for="lastname">Last Name</label> 
+                            <input type="text" class="form-control" name="lastname" placeholder="Last Name" ng-model="formlastname" required>
+                            <!--<span ng-show="userForm.lastname.$error.required" style="color:red">Last Name is required.</span>-->
+                            <span ng-show="userForm.lastname.$dirty && userForm.lastname.$invalid" style="color:red">Last Name is required.</span>
+
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label> 
+                            <input type="email" class="form-control" name="email" placeholder="Email" ng-model="formemail" required>
+                            <!--<span style="color:red" ng-show="userForm.email.$error.required">Email is required.</span>-->
+
+                            <span ng-show="userForm.email.$dirty && userForm.email.$error.required" style="color:red">Email is required.</span>
+                            <span ng-show="userForm.email.$error.email" style="color:red" >Not a valid e-mail address</span>
+
+                        </div>
+                        <div class="text-center">
+                            <div ng-if="editMode">
+                                <input type="submit" value="Update User" data-loading-text="Updating User..." class="btn btn-save" ng-click="addUser(editMode)" ng-disabled="userForm.$invalid">
+                            </div>
+                            <div ng-if="!editMode">
+                                <input type="submit" value="Save User" data-loading-text="Saving User..." class="btn btn-save" ng-click="addUser(editMode)" ng-disabled="userForm.$invalid">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8 animated fadeInUp">
+                    <div class="table-responsive">
+                        <div class="col-sm-6">
+                            <a class="btn btn-primary" ng-click="addForm()">Add New User</a>
+                        </div>
+                        <div class="col-sm-6" style="margin-bottom: 10px;">
+                            <input type="text" ng-model="usersearch" class="form-control">
+                        </div>
+                        <table class="table table-bordered table-hover table-striped" ng-init="sortKey = 'firstname'">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th ng-click="sort('firstname')">
+                                        Firstname
+                                        <span class="glyphicon sort-icon" ng-show="sortKey == 'firstname'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                                    </th>
+                                    <th ng-click="sort('lastname')">
+                                        Lastname
+                                        <span class="glyphicon sort-icon" ng-show="sortKey == 'lastname'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                                    </th>
+                                    <th ng-click="sort('email')">
+                                        Email
+                                        <span class="glyphicon sort-icon" ng-show="sortKey == 'email'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                                    </th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="animate" dir-paginate="x in post.users|filter : usersearch|orderBy:sortKey:reverse|itemsPerPage:itemsPerPage">
+                                    <td>{{itemsPerPage * (currentPage - 1) + $index + 1}}</td>
+                                    <td>{{x.firstname}}</td>
+                                    <td>{{x.lastname}}</td>
+                                    <td>{{x.email}}</td>
+                                    <td><a ng-click="editUser(x)" href="javascript:void(0);"><span> Edit</span></a> | <a ng-click="deleteUser(x)" href="javascript:void(0);"><span>Delete</span></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="5" direction-links="true" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)"></dir-pagination-controls>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+                    var app = angular.module('usersModule', ['angularUtils.directives.dirPagination']);
+                    app.controller('UserController', function ($scope, $http) {
+                        $scope.currentPage = 1;
+                        $scope.itemsPerPage = 5;
+                        $scope.formfirstname = '';
+                        $scope.formlastname = '';
+                        $scope.formemail = '';
+                        $scope.post = {};
+                        $scope.post.users = [];
+                        $scope.tempUser = {};
+                        $scope.editMode = false;
+                        $scope.index = '';
+
+                        var url = 'ajax.php';
+//                var url = 'http://localhost:3000/userinfo';
+                        $http({
+                            method: 'post',
+                            url: url,
+                            data: $.param({'type': 'getUsers'}),
+                            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                        }).success(function (data, status, headers, config) {
+                            if (data.success && !angular.isUndefined(data.data)) {
+                                $scope.post.users = data.data;
+                            } else {
+                                $scope.messageFailure(data.message);
+                            }
+                        }).error(function (data, status, headers, config) {
+                            $scope.messageFailure(data.message);
+                        });
+                        $scope.saveUser = function () {
+                            $scope.tempUser.firstname = $scope.formfirstname;
+                            $scope.tempUser.lastname = $scope.formlastname;
+                            $scope.tempUser.email = $scope.formemail;
+                            $http({
+                                method: 'post',
+                                url: url,
+                                data: $.param({'user': $scope.tempUser, 'type': 'save_user'}),
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                            }).
+                                    success(function (data, status, headers, config) {
+                                        if (data.success) {
+                                            if ($scope.editMode) {
+                                                $scope.post.users[$scope.index].id = data.id;
+                                                $scope.post.users[$scope.index].firstname = $scope.tempUser.firstname;
+                                                $scope.post.users[$scope.index].lastname = $scope.tempUser.lastname;
+                                                $scope.post.users[$scope.index].email = $scope.tempUser.email;
+                                            } else {
+                                                $scope.post.users.push({
+                                                    id: data.id,
+                                                    firstname: $scope.tempUser.firstname,
+                                                    lastname: $scope.tempUser.lastname,
+                                                    email: $scope.tempUser.email,
+                                                });
+                                            }
+                                            $scope.messageSuccess(data.message);
+                                            $scope.userForm.$setPristine();
+
+                                            $scope.formfirstname = '';
+                                            $scope.formlastname = '';
+                                            $scope.formemail = '';
+                                            $scope.editMode = false;
+
+                                            $scope.tempUser = {};
+                                        } else {
+                                            $scope.messageFailure(data.message);
+                                        }
+                                    }).
+                                    error(function (data, status, headers, config) {
+                                        //$scope.codeStatus = response || "Request failed";
+                                    });
+                            $('.btn-save').button('reset');
+                        }
+
+                        $scope.addUser = function (editMode) {
+                            if (editMode) {
+                                $scope.updateUser();
+                            } else {
+                                $('.btn-save').button('loading');
+                                $scope.saveUser();
+                                $scope.editMode = false;
+                                $scope.index = '';
+                            }
+                        }
+
+                        $scope.updateUser = function () {
+                            $('.btn-save').button('loading');
+                            $scope.saveUser();
+                        }
+
+                        $scope.editUser = function (user) {
+                            $scope.formfirstname = user.firstname;
+                            $scope.formlastname = user.lastname;
+                            $scope.formemail = user.email;
+
+                            $scope.tempUser = {
+                                id: user.id,
+                                firstname: user.firstname,
+                                lastname: user.lastname,
+                                email: user.email,
+                            };
+                            $scope.editMode = true;
+                            $scope.index = $scope.post.users.indexOf(user);
+                        }
+
+
+                        $scope.deleteUser = function (user) {
+                            var r = confirm("Are you sure want to delete this user!");
+                            if (r == true) {
+                                $http({
+                                    method: 'post',
+                                    url: url,
+                                    data: $.param({'id': user.id, 'type': 'delete_user'}),
+                                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                                }).success(function (data, status, headers, config) {
+                                    if (data.success) {
+                                        var index = $scope.post.users.indexOf(user);
+                                        $scope.post.users.splice(index, 1);
+                                    } else {
+                                        $scope.messageFailure(data.message);
+                                    }
+                                }).error(function (data, status, headers, config) {
+                                    //$scope.messageFailure(data.message);
+                                });
+                            }
+                        }
+
+                        $scope.messageFailure = function (msg) {
+                            $('.alert-failure-div > p').html(msg);
+                            $('.alert-failure-div').show();
+                            $('.alert-failure-div').delay(5000).slideUp(function () {
+                                $('.alert-failure-div > p').html('');
+                            });
+                        }
+
+                        $scope.messageSuccess = function (msg) {
+                            $('.alert-success-div > p').html(msg);
+                            $('.alert-success-div').show();
+                            $('.alert-success-div').delay(5000).slideUp(function () {
+                                $('.alert-success-div > p').html('');
+                            });
+                        }
+                        $scope.addForm = function () {
+                            $('#firstname').focus();
+                            $scope.formfirstname = '';
+                            $scope.formlastname = '';
+                            $scope.formemail = '';
+                            $scope.editMode = false;
+                        }
+                        $scope.sort = function (keyname) {
+                            $scope.sortKey = keyname;   //set the sortKey to the param passed
+                            $scope.reverse = !$scope.reverse; //if true make it false and vice versa
+                        }
+                        $scope.pageChangeHandler = function (num) {
+                            $scope.currentPage = num;
+                        };
+                    });
+        </script>
+    </body>
+</html>

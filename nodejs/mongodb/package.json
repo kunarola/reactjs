@@ -1,0 +1,23 @@
+{
+  "name": "angular_node",
+  "version": "1.0.0",
+  "description": "Basic demo using angular and node js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "KU",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.5.8",
+    "body-parser": "^1.15.2",
+    "bootstrap": "^3.3.7",
+    "express": "^4.14.0",
+    "jquery": "^3.1.0",
+    "mongodb": "^2.2.10",
+    "mysql": "^2.10.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.10.2"
+  }
+}

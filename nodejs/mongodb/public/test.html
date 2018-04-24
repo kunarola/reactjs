@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html ng-app ="myApp">
+    <head>
+        <title>AngularJS Basic Example</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <!--<link rel="stylesheet" href="lib/css/bootstrap.min.css" />-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.min.css"/>
+
+        <!--<link rel="stylesheet" href="lib/css/animate.min.css" />-->
+
+        <!--<script type='text/javascript' src="lib/moment.min.js" charset="UTF-8"></script>-->
+        <!--<script type='text/javascript' src="lib/lodash.min.js" charset="UTF-8"></script>-->
+
+        <!--<script type='text/javascript' src="lib/angular.min.js" charset="UTF-8"></script>-->
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+
+        <!--<script type='text/javascript' src="lib/angular-sanitize/angular-sanitize.min.js" charset="UTF-8"></script>-->
+
+        <!--<script type='text/javascript' src="lib/angular-ui-router.min.js" charset="UTF-8"></script>-->
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.min.js"></script>
+    </head>
+    <body>
+        <div class="container" ng-view></div>
+        <script type="text/javascript">
+            angular.module('myApp', ['ngRoute']).
+                    config(function ($routeProvider) {
+
+                        $routeProvider.when('/', {
+                            templateUrl: 'app.html',
+                            controller: 'AppCtrl'
+                        });
+
+                    });
+            angular.module('myApp').controller('AppCtrl', function ($scope, $http) {
+                $scope.message = 'Hello World!';
+            });
+        </script>
+    </body>
+</html>
